@@ -4,21 +4,22 @@ pipeline {
     stages {
         stage('1. Clonar Repositorio') {
             steps {
-                // Descarga el código desde GitHub
                 checkout scm
             }
         }
         
-        stage('2. Test de Conectividad SSH') {
+        stage('2. Aprovisionamiento (Terraform)') {
             steps {
-                // Jenkins usa el binario de Ansible del host para hacer un ping a los clientes
-                sh 'ansible -i ansible/inventory.ini webservers -m ping'
+                // Entramos a la carpeta terraform, inicializamos y aplicamos los cambios sin preguntar
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
         
-        stage('3. Configuración (Ansible)') {
+        stage('3. Configuración Web (Ansible)') {
             steps {
-                // Ejecuta el playbook para instalar Nginx en todos los clientes
                 sh 'ansible-playbook -i ansible/inventory.ini ansible/playbook.yml'
             }
         }
