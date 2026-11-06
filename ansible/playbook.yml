@@ -1,0 +1,17 @@
+---
+- name: Despliegue automatizado de Nginx
+  hosts: webservers
+  become: yes
+  
+  tasks:
+    - name: Actualizar la caché de APT e instalar Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Asegurar que el servicio Nginx está habilitado y corriendo
+      service:
+        name: nginx
+        state: started
+        enabled: yes
