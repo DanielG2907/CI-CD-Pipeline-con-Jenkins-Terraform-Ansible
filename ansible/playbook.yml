@@ -1,5 +1,5 @@
 ---
-- name: Despliegue automatizado de Nginx
+- name: Despliegue automatizado de Nginx y web personalizada
   hosts: webservers
   become: yes
   
@@ -9,6 +9,13 @@
         name: nginx
         state: present
         update_cache: yes
+
+    - name: Modificar el index.html para identificar el servidor
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <h1>¡Infraestructura DevOps Activa!</h1>
+          <p>Estás conectado al nodo: <strong>{{ inventory_hostname }}</strong></p>
 
     - name: Asegurar que el servicio Nginx está habilitado y corriendo
       service:
