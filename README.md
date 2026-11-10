@@ -1,30 +1,25 @@
-# 🚀 Home Lab: CI/CD Pipeline con Jenkins, Terraform y Ansible
+# 🚀 Home Lab: CI/CD Pipeline con Jenkins, Terraform y Ansible (DevSecOps)
 
-Este proyecto es un entorno de laboratorio DevOps diseñado para demostrar la automatización del ciclo de vida de la infraestructura y configuración utilizando un enfoque de Infraestructura como Código (IaC).
+Este proyecto es un entorno de laboratorio DevOps diseñado para demostrar la automatización del ciclo de vida de la infraestructura, gestión de configuración y seguridad utilizando un enfoque de Infraestructura como Código (IaC).
 
-## 🏗️ Arquitectura del Proyecto
+## 🏗️ Arquitectura del Proyecto y Alta Disponibilidad
 
-El entorno está desplegado sobre máquinas virtuales gestionadas localmente y orquestado de forma centralizada:
-
-*   **Nodo Central (Orquestador):** Servidor Rocky Linux alojando Jenkins en un contenedor Docker con permisos sobre el socket del host.
+*   **Nodo Central (Orquestador):** Servidor Rocky Linux alojando Jenkins.
+*   **Balanceador de Carga:** Contenedor Nginx actuando como Proxy Inverso (Round-Robin) para repartir el tráfico web de forma equitativa.
 *   **Nodos Destino (Web Servers):** Dos servidores Ubuntu Server gestionados sin agente (Agentless) vía SSH.
-*   **Servicios Auxiliares:** Contenedores de caché (Redis) aprovisionados dinámicamente en el Nodo Central.
+*   **Observabilidad:** Contenedor de Grafana para la visualización de métricas de infraestructura.
 
 ## 🛠️ Stack Tecnológico
 
-*   **Integración Continua (CI/CD):** Jenkins (Pipeline Declarativo)
+*   **CI/CD:** Jenkins (Pipeline Declarativo)
 *   **Aprovisionamiento (IaC):** Terraform (Provider Docker)
 *   **Gestión de Configuración:** Ansible
+*   **Seguridad y Secretos:** Ansible Vault (DevSecOps)
 *   **Control de Versiones:** Git & GitHub
 
-## ⚙️ Flujo del Pipeline (Jenkinsfile)
+## ⚙️ Flujo del Pipeline Automatizado
 
-El pipeline automatizado consta de tres fases secuenciales:
-
-1.  **Checkout SCM:** Jenkins clona la última versión del repositorio desde la rama `main`.
-2.  **Aprovisionamiento (Terraform):** Se inicializan los módulos y se ejecuta `terraform apply -auto-approve` para levantar la infraestructura auxiliar requerida (ej. servidor de caché Redis) sobre el motor Docker del Nodo Central.
-3.  **Configuración (Ansible):** Se ejecuta el playbook `playbook.yml` a través del inventario estático. Ansible se conecta por SSH a los nodos Ubuntu, instala dependencias (Nginx) y asegura que los servicios estén activos y expuestos.
-
-## 🔒 Consideraciones de Seguridad
-*   Autenticación entre el Nodo Central y los Clientes gestionada exclusivamente mediante claves SSH `ed25519` (sin contraseñas en texto plano).
-*   Elevación de privilegios en los nodos destino configurada mediante directivas seguras de `sudoers` (NOPASSWD para el usuario de automatización).
+1.  **Checkout SCM:** Extracción del código fuente desde GitHub.
+2.  **Aprovisionamiento de Infraestructura:** Terraform despliega dinámicamente el balanceador de carga Nginx y el servidor de monitorización Grafana.
+3.  **Inyección de Secretos:** Jenkins recupera credenciales seguras y las inyecta temporalmente en el entorno.
+4.  **Despliegue y Configuración:** Ansible desencripta el archivo `password.yml` mediante Vault, se conecta a los nodos Ubuntu, instala dependencias web y configura el contenido estático.
