@@ -21,9 +21,12 @@ pipeline {
         stage('3. Configuración Web (Ansible)') {
             steps {
                 withCredentials([string(credentialsId: 'vault-key', variable: 'VAULT_PASS')]) {
-                sh 'echo $VAULT_PASS > .vault_pass.txt'
-		sh 'ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -e "@ansible/password.yml" --vault-password-file .vault_pass.txt'
-		sh 'rm .vault_pass.txt'
+                    sh '''
+                        echo "$VAULT_PASS" > .vault_pass.txt
+                        ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -e "@ansible/password.yml" --vault-password-file .vault_pass.txt
+                        rm -f .vault_pass.txt
+                    '''
+                } 
             }
         }
     }
