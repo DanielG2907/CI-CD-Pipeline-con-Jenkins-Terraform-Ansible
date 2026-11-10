@@ -20,8 +20,10 @@ pipeline {
         
         stage('3. Configuración Web (Ansible)') {
             steps {
-                // En un entorno real, '--vault-password-file' desencriptaría password.yml
-                sh 'ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -e "@ansible/password.yml"'
+                withCredentials([string(credentialsId: 'vault-key', variable: 'VAULT_PASS')]) {
+                sh 'echo $VAULT_PASS > .vault_pass.txt'
+		sh 'ansible-playbook -i ansible/inventory.ini ansible/playbook.yml -e "@ansible/password.yml" --vault-password-file .vault_pass.txt'
+		sh 'rm .vault_pass.txt'
             }
         }
     }
