@@ -5,7 +5,7 @@ Este proyecto es un entorno de laboratorio DevOps diseñado para demostrar la au
 ## 🏗️ Arquitectura del Proyecto y Alta Disponibilidad
 
 *   **Nodo Central (Orquestador):** Servidor Rocky Linux alojando Jenkins.
-*   **Balanceador de Carga:** Contenedor Nginx actuando como Proxy Inverso (Round-Robin) para repartir el tráfico web de forma equitativa.
+*   **Balanceador de Carga:** Contenedor Nginx actuando como Proxy Inverso  para repartir el tráfico web de forma equitativa.
 *   **Nodos Destino (Web Servers):** Dos servidores Ubuntu Server gestionados sin agente (Agentless) vía SSH.
 *   **Observabilidad:** Contenedor de Grafana para la visualización de métricas de infraestructura.
 
