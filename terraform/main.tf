@@ -43,7 +43,9 @@ resource "docker_container" "grafana_server" {
     external = var.grafana_external_port
     ip       = "0.0.0.0"
   }
-
+  networks_advanced {
+    name = "bridge"
+  }
   networks_advanced {
     name = docker_network.red_interna.name
   }
