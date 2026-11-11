@@ -22,7 +22,7 @@ resource "docker_image" "redis" {
 resource "docker_container" "redis_server" {
   image = docker_image.redis.image_id
   name  = "servidor_redis_cache"
-  
+
   networks_advanced {
     name = docker_network.red_interna.name
   }
@@ -90,8 +90,8 @@ resource "docker_container" "nginx_lb" {
 }
 
 resource "docker_network" "red_interna" {
-  name     = "red_interna"
-  driver   = "bridge"
+  name   = "red_interna"
+  driver = "bridge"
 }
 
 resource "docker_volume" "grafana_data" {
