@@ -89,7 +89,6 @@ resource "docker_container" "nginx_lb" {
 resource "docker_network" "red_interna" {
   name     = "red_interna"
   driver   = "bridge"
-  internal = true
 }
 
 resource "docker_volume" "grafana_data" {
