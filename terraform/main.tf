@@ -9,12 +9,12 @@ terraform {
 
 # Nos conectamos al motor de Docker local del Nodo Central
 provider "docker" {
-  host = "unix:///var/run/docker.sock"
+  host = var.docker_host
 }
 
 # Declaramos la imagen que necesitamos descargar
 resource "docker_image" "redis" {
-  name         = "redis:alpine"
+  name         = var.redis_image
   keep_locally = false
 }
 
@@ -22,30 +22,40 @@ resource "docker_image" "redis" {
 resource "docker_container" "redis_server" {
   image = docker_image.redis.image_id
   name  = "servidor_redis_cache"
-  ports {
-    internal = 6379
-    external = 6379
+  
+  networks_advanced {
+    name = docker_network.red_interna.name
   }
 }
 
 # Monitorización con Grafana
 resource "docker_image" "grafana" {
-  name         = "grafana/grafana:latest"
+  name         = var.grafana_image
   keep_locally = false
 }
 
 resource "docker_container" "grafana_server" {
   image = docker_image.grafana.image_id
   name  = "servidor_grafana"
+
   ports {
     internal = 3000
-    external = 3000
+    external = var.grafana_external_port
+  }
+
+  networks_advanced {
+    name = docker_network.red_interna.name
+  }
+
+  volumes {
+    volume_name    = docker_volume.grafana_data.name
+    container_path = "/var/lib/grafana"
   }
 }
 
 # Balanceador de Carga (Proxy Inverso Nginx)
 resource "docker_image" "nginx" {
-  name         = "nginx:alpine"
+  name         = var.nginx_image
   keep_locally = false
 }
 
@@ -54,15 +64,15 @@ resource "docker_container" "nginx_lb" {
   name  = "balanceador_nginx"
   ports {
     internal = 80
-    external = 80
+    external = var.nginx_external_port
   }
   # Inyectamos la configuración del proxy al vuelo
   upload {
     file    = "/etc/nginx/conf.d/default.conf"
     content = <<-EOF
       upstream backend_web {
-          server 192.168.208.50:80;
-          server 192.168.208.51:80;
+          server ${var.backend_1_ip}:80;
+          server ${var.backend_2_ip}:80;
       }
       server {
           listen 80;
@@ -74,4 +84,14 @@ resource "docker_container" "nginx_lb" {
       }
     EOF
   }
+}
+
+resource "docker_network" "red_interna" {
+  name     = "red_interna"
+  driver   = "bridge"
+  internal = true
+}
+
+resource "docker_volume" "grafana_data" {
+  name = "grafana_data"
 }
